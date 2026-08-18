@@ -10,6 +10,7 @@ python3 scripts/setup_runtime.py
 ```
 
 3. Optional: install Ollama and pull the configured model for local cleanup and assessment.
+4. To process MKV, AVI, WebM, WMV, MPEG/TS, or other extended containers, install FFmpeg and make sure `ffmpeg` is on `PATH`. MP4/MOV/M4V do not require it.
 
 ## Check
 
@@ -18,6 +19,12 @@ python3 scripts/setup_runtime.py
 ```
 
 Remove `--skip-ollama` when Ollama and `qwen3.5:9b` are installed.
+
+Check extended-format support separately:
+
+```bash
+.venv/bin/python scripts/doctor.py --extended-formats --skip-ollama
+```
 
 ## Run
 

@@ -4,7 +4,8 @@
 
 | Platform | Frame extraction | OCR |
 | --- | --- | --- |
-| macOS | Swift + AVFoundation | Apple Vision |
+| macOS, MP4/MOV/M4V batch | Swift + AVFoundation | Apple Vision |
+| macOS, batch containing an extended format | FFmpeg | Apple Vision |
 | Windows | FFmpeg | RapidOCR + ONNX Runtime |
 
 Shared Python code handles stable-page selection, deduplication, cropping, PDF output, OCR cleanup, and Ollama review.
@@ -13,11 +14,17 @@ Shared Python code handles stable-page selection, deduplication, cropping, PDF o
 
 - Python 3.9 or newer.
 - Pillow on both platforms.
-- macOS: Swift, AVFoundation, and Vision supplied by macOS/Xcode Command Line Tools.
+- macOS: Swift, AVFoundation, and Vision supplied by macOS/Xcode Command Line Tools. FFmpeg is additionally required for extended containers.
 - Windows: FFmpeg on `PATH`, plus `rapidocr` and `onnxruntime`.
 - Ollama and the requested local model only when model-assisted cleanup is enabled. The default is `qwen3.5:9b`.
 
 No network access or social-platform login is required.
+
+## Input formats
+
+Supported extensions are MP4, MOV, M4V, MKV, AVI, WebM, WMV, MPG, MPEG, TS, MTS, M2TS, 3GP, FLV, OGV, and VOB.
+
+An extension identifies the container, not whether every codec inside it can be decoded. FFmpeg handles the extended containers. Encrypted, DRM-protected, corrupted, or unusual-codec files can still fail and should be converted to MP4/H.264 before retrying.
 
 ## Outputs per recording
 
@@ -60,6 +67,7 @@ The crop defaults reproduce the tested vertical Xiaohongshu recording layout. In
 - Ollama unavailable: rerun with `--skip-ollama`; deterministic OCR deliverables remain valid.
 - Vision reports `nilError` or cannot create `CVPixelBuffer`: this is commonly a Codex sandbox restriction. Request approval and rerun the pipeline outside the sandbox.
 - Windows reports that FFmpeg is missing: install FFmpeg, open a new PowerShell window, and verify `ffmpeg -version`.
+- macOS reports that FFmpeg is missing for MKV or another extended container: install FFmpeg, then run `scripts/doctor.py --extended-formats --skip-ollama`.
 - Windows reports missing RapidOCR modules: install `requirements-windows.txt` with the same Python interpreter used to run the pipeline.
 
 ## Batch use
@@ -67,7 +75,7 @@ The crop defaults reproduce the tested vertical Xiaohongshu recording layout. In
 Pass multiple paths:
 
 ```bash
-python3 <skill-dir>/scripts/run_pipeline.py video01.mp4 video02.mp4 \
+python3 <skill-dir>/scripts/run_pipeline.py video01.mp4 video02.mkv \
   --work-dir ./work/video-notes \
   --output-dir ./outputs/video-notes
 ```

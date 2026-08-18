@@ -16,7 +16,22 @@ from typing import Optional
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-VIDEO_SUFFIXES = {".mp4", ".mov", ".m4v"}
+AVFOUNDATION_SUFFIXES = {".mp4", ".mov", ".m4v"}
+VIDEO_SUFFIXES = AVFOUNDATION_SUFFIXES | {
+    ".3gp",
+    ".avi",
+    ".flv",
+    ".m2ts",
+    ".mkv",
+    ".mpg",
+    ".mpeg",
+    ".mts",
+    ".ogv",
+    ".ts",
+    ".vob",
+    ".webm",
+    ".wmv",
+}
 
 
 def run(command: list[str], env: Optional[dict[str, str]] = None) -> str:
@@ -81,11 +96,14 @@ def resolve_executable(value: str) -> Optional[str]:
     return shutil.which(value)
 
 
-def resolve_backends(args: argparse.Namespace) -> tuple[str, str]:
+def resolve_backends(args: argparse.Namespace, videos: list[Path]) -> tuple[str, str]:
     system = platform.system()
     frame_backend = args.frame_backend
     if frame_backend == "auto":
-        frame_backend = "avfoundation" if system == "Darwin" else "ffmpeg"
+        use_native_macos = system == "Darwin" and all(
+            video.suffix.lower() in AVFOUNDATION_SUFFIXES for video in videos
+        )
+        frame_backend = "avfoundation" if use_native_macos else "ffmpeg"
     ocr_backend = args.ocr_backend
     if ocr_backend == "auto":
         ocr_backend = "vision" if system == "Darwin" else "rapidocr"
@@ -150,7 +168,8 @@ def process_one(video: Path, args: argparse.Namespace, frame_backend: str, ocr_b
     if not video.exists() or not video.is_file():
         raise FileNotFoundError(video)
     if video.suffix.lower() not in VIDEO_SUFFIXES:
-        raise ValueError(f"unsupported video format: {video.suffix}")
+        supported = ", ".join(sorted(VIDEO_SUFFIXES))
+        raise ValueError(f"unsupported video format: {video.suffix}; supported: {supported}")
 
     name = safe_name(video.stem)
     result_dir = unique_directory(args.output_dir, name)
@@ -293,10 +312,16 @@ def main() -> None:
         parser.error("--step must be positive")
     args.work_dir = args.work_dir.resolve()
     args.output_dir = args.output_dir.resolve()
+    unsupported = sorted({video.suffix.lower() or "[no extension]" for video in args.videos} - VIDEO_SUFFIXES)
+    if unsupported:
+        parser.error(
+            "unsupported video format(s): " + ", ".join(unsupported)
+            + "; supported: " + ", ".join(sorted(VIDEO_SUFFIXES))
+        )
     ensure_pillow_python()
     args.work_dir.mkdir(parents=True, exist_ok=True)
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    frame_backend, ocr_backend = resolve_backends(args)
+    frame_backend, ocr_backend = resolve_backends(args, args.videos)
     ensure_dependencies(args, frame_backend, ocr_backend)
 
     results: list[dict] = []
