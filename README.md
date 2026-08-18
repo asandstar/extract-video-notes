@@ -33,15 +33,15 @@
 
 ```text
 $skill-installer
-请从 https://github.com/<GitHub用户名>/extract-video-notes 安装路径 .agents/skills/extract-video-notes
+请从 https://github.com/asandstar/extract-video-notes 安装路径 .agents/skills/extract-video-notes
 ```
 
-发布仓库后，把占位的 GitHub 用户名替换成真实地址。Skill 通常会在下一轮对话中可用；如果没有出现，重启 Codex。
+Skill 通常会在下一轮对话中可用；如果没有出现，重启 Codex。
 
 ### 方法二：作为项目 Skill 使用
 
 ```bash
-git clone https://github.com/<GitHub用户名>/extract-video-notes.git
+git clone https://github.com/asandstar/extract-video-notes.git
 cd extract-video-notes
 codex
 ```
