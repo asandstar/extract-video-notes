@@ -1,0 +1,7 @@
+interface:
+  display_name: "录屏笔记提取"
+  short_description: "在macOS和Windows将录屏整理为OCR全文与研究材料"
+  default_prompt: "Use $extract-video-notes to turn these screen recordings into clean OCR text and research-ready notes."
+
+policy:
+  allow_implicit_invocation: true
