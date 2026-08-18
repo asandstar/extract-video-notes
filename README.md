@@ -20,10 +20,14 @@
 
 | 平台 | 视频抽帧 | OCR | 状态 |
 | --- | --- | --- | --- |
-| macOS | AVFoundation | Apple Vision | 已做端到端测试 |
+| macOS | AVFoundation / FFmpeg | Apple Vision | 已做端到端测试 |
 | Windows 10/11 | FFmpeg | RapidOCR + ONNX Runtime | 后端已做端到端测试；请在实际 Windows 机器上复核路径与安装体验 |
 
 共享的 Python 流程负责页面稳定性判断、去重、裁剪、PDF、全文整理和 Ollama 调用。
+
+支持的视频扩展名：`MP4`、`MOV`、`M4V`、`MKV`、`AVI`、`WebM`、`WMV`、`MPG`、`MPEG`、`TS`、`MTS`、`M2TS`、`3GP`、`FLV`、`OGV`、`VOB`。
+
+macOS 处理 MP4/MOV/M4V 时使用 AVFoundation；批次中只要包含一种扩展格式，就自动改用 FFmpeg 抽帧，OCR 仍使用 Apple Vision。Windows 始终使用 FFmpeg。容器扩展名不保证其中的所有编码都能解码；加密、DRM、损坏或罕见编码的视频仍可能需要先转成 MP4/H.264。
 
 ## 安装 Skill
 
@@ -61,7 +65,7 @@ cd .agents/skills/extract-video-notes
 python3 scripts/setup_runtime.py
 ```
 
-如果没有 `swift`，先运行 `xcode-select --install`。完整说明见 [macOS 安装指南](.agents/skills/extract-video-notes/references/install-macos.md)。
+如果没有 `swift`，先运行 `xcode-select --install`。处理 MKV、AVI、WebM 等扩展格式时还需要安装 FFmpeg。完整说明见 [macOS 安装指南](.agents/skills/extract-video-notes/references/install-macos.md)。
 
 ### Windows
 
@@ -108,7 +112,7 @@ py scripts\run_pipeline.py "D:\Videos\note.mp4" `
   --output-dir ".\outputs\video-notes"
 ```
 
-一次可以传入多个 `.mp4`、`.mov` 或 `.m4v` 文件，程序会顺序处理并生成总索引。只做 OCR 时添加 `--skip-ollama`。
+一次可以传入多个受支持格式的视频，程序会顺序处理并生成总索引。只做 OCR 时添加 `--skip-ollama`。
 
 ## 主要输出
 

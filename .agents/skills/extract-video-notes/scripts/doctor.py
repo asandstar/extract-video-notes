@@ -32,12 +32,17 @@ def main() -> None:
     parser.add_argument("--frame-backend", choices=("auto", "avfoundation", "ffmpeg"), default="auto")
     parser.add_argument("--ocr-backend", choices=("auto", "vision", "rapidocr"), default="auto")
     parser.add_argument("--ffmpeg", default="ffmpeg", help="FFmpeg executable name or full path")
+    parser.add_argument(
+        "--extended-formats",
+        action="store_true",
+        help="on macOS, check the FFmpeg path used for non-MP4/MOV/M4V inputs",
+    )
     args = parser.parse_args()
 
     system = platform.system()
     frame_backend = args.frame_backend
     if frame_backend == "auto":
-        frame_backend = "avfoundation" if system == "Darwin" else "ffmpeg"
+        frame_backend = "avfoundation" if system == "Darwin" and not args.extended_formats else "ffmpeg"
     ocr_backend = args.ocr_backend
     if ocr_backend == "auto":
         ocr_backend = "vision" if system == "Darwin" else "rapidocr"

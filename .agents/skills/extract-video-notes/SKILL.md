@@ -1,6 +1,6 @@
 ---
 name: extract-video-notes
-description: Extract user-provided macOS or Windows screen recordings into deduplicated note pages, local OCR text, optional Ollama-corrected prose, and academic-content assessments. Use for local MP4/MOV recordings of image-heavy notes or document browsing; do not use it to scrape social platforms from account URLs.
+description: Extract user-provided macOS or Windows screen recordings into deduplicated note pages, local OCR text, optional Ollama-corrected prose, and academic-content assessments. Use for common local video formats containing image-heavy notes or document browsing; do not use it to scrape social platforms from account URLs.
 ---
 
 # Extract Video Notes
@@ -48,7 +48,7 @@ On Windows, replace `python3` with `py` and use PowerShell path syntax.
 
 For multiple recordings, add more paths before the options. Use absolute paths when recordings come from application temporary folders.
 
-The script selects backends automatically. Override only for testing or troubleshooting with `--frame-backend` and `--ocr-backend`.
+The script selects backends automatically. On macOS it uses AVFoundation for batches containing only MP4/MOV/M4V and FFmpeg when any extended container is present; OCR remains Apple Vision. Override only for testing or troubleshooting with `--frame-backend` and `--ocr-backend`.
 
 ## Verify before handoff
 
